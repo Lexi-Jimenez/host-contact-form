@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Contact & Request Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Load reCAPTCHA v2 -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: white;
+      color: black;
+      margin: 0;
+      padding: 30px 15px;
+    }
+
+    .container-fluid {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      font-weight: normal;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 1.25rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 0;
+      box-sizing: border-box;
+    }
+
+    textarea.form-control {
+      resize: vertical;
+    }
+
+    button.btn {
+      background-color: #66cc33;
+      color: #000;
+      font-size: 1rem;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button.btn:hover {
+      background-color: #55aa28;
+    }
+
+    #form-response {
+      display: none;
+      color: green;
+      font-weight: bold;
+      font-size: 2rem;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background-color: #e6ffe6;
+      border: 2px solid green;
+      border-radius: 8px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<section id="test-contact-form" class="contacts-block">
+  <div class="container-fluid">
+    <h1>Send us an email</h1>
+    <form id="contact-form" method="POST" action="https://script.google.com/macros/s/AKfycbxgi8ARC3cK39_Dt9k50Qc30CjKvAXL28Dzsb1cyIPtdu_aK-cNWtNDE8dolqbHY2d6/exec" onsubmit="submitForm(event)">
+
+      <!-- Request Type -->
+      <p>Request Type<br />
+        <select name="requestType" required class="form-control" id="request-type">
+          <option value="">Select a request type</option>
+          <option value="Appointment Request">Appointment Request</option>
+          <option value="Contact Request">Contact Request</option>
+        </select>
+      </p>
+
+      <!-- Name -->
+      <p>Your Name (required)<br />
+        <input type="text" name="name" class="form-control" required />
+      </p>
+
+      <!-- Email -->
+      <p>Your Email (required)<br />
+        <input type="email" name="email" class="form-control" required />
+      </p>
+
+      <!-- Phone -->
+      <p>Your Phone<br />
+        <input type="text" name="phone" class="form-control" />
+      </p>
+
+      <!-- Appointment Fields -->
+      <div id="appointment-fields" style="display: none;">
+        <p>Appointment Date<br />
+          <input type="date" name="appointmentDate" class="form-control" />
+        </p>
+        <p>Appointment Time<br />
+          <input type="time" name="appointmentTime" class="form-control" />
+        </p>
+      </div>
+
+      <!-- Message -->
+      <p>Your Message<br />
+        <textarea name="message" rows="4" class="form-control" required></textarea>
+      </p>
+
+      <!-- reCAPTCHA -->
+      <div class="g-recaptcha" data-sitekey="6LdYBl8rAAAAAKmpUKvk0VuQOSa_VUi1SdGeKwy"></div>
+
+      <!-- Submit -->
+      <p><button type="submit" class="btn btn-primary">Send</button></p>
+
+      <!-- Response Message -->
+      <div id="form-response">
+        ✅ Thank you! Your inquiry has been sent.
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- Script -->
+<script>
+  async function submitForm(event) {
+    event.preventDefault();
+
+    const form = document.getElementById("contact-form");
+    const formData = new FormData(form);
+    const responseBox = document.getElementById("form-response");
+
+    const recaptchaResponse = grecaptcha.getResponse();
+    if (!recaptchaResponse) {
+      alert("Please verify that you're not a robot.");
+      return;
+    }
+
+    formData.append("g-recaptcha-response", recaptchaResponse);
+
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: formData
+      });
+
+      const text = await response.text();
+      responseBox.style.display = "block";
+
+      if (text.toLowerCase().includes("success")) {
+        responseBox.innerText = "✅ Thank you! Your inquiry has been sent.";
+        responseBox.style.color = "green";
+        responseBox.style.backgroundColor = "#e6ffe6";
+        responseBox.style.borderColor = "green";
+        form.reset();
+        grecaptcha.reset();
+        document.getElementById("appointment-fields").style.display = "none";
+      } else {
+        responseBox.innerText = "❌ Something went wrong.";
+        responseBox.style.color = "red";
+        responseBox.style.backgroundColor = "#ffe6e6";
+        responseBox.style.borderColor = "red";
+      }
+    } catch (err) {
+      responseBox.innerText = "❌ Submission error: " + err.message;
+      responseBox.style.color = "red";
+      responseBox.style.backgroundColor = "#ffe6e6";
+      responseBox.style.borderColor = "red";
+      responseBox.style.display = "block";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const requestType = document.getElementById("request-type");
+    const appointmentFields = document.getElementById("appointment-fields");
+
+    requestType.addEventListener("change", function () {
+      if (requestType.value === "Appointment Request") {
+        appointmentFields.style.display = "block";
+      } else {
+        appointmentFields.style.display = "none";
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
