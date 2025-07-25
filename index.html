@@ -148,28 +148,24 @@
     formData.append("g-recaptcha-response", recaptchaResponse);
 
     try {
-      const response = await fetch(form.action, {
+      const fetchPromise = fetch(form.action, {
         method: "POST",
+        mode: "no-cors",
         body: formData
       });
 
-      const text = await response.text();
-      responseBox.style.display = "block";
+      // Even in no-cors, the promise will resolve if the request is sent successfully.
+      await fetchPromise;
 
-      if (text.toLowerCase().includes("success")) {
-        responseBox.innerText = "✅ Thank you! Your inquiry has been sent.";
-        responseBox.style.color = "green";
-        responseBox.style.backgroundColor = "#e6ffe6";
-        responseBox.style.borderColor = "green";
-        form.reset();
-        grecaptcha.reset();
-        document.getElementById("appointment-fields").style.display = "none";
-      } else {
-        responseBox.innerText = "❌ Something went wrong.";
-        responseBox.style.color = "red";
-        responseBox.style.backgroundColor = "#ffe6e6";
-        responseBox.style.borderColor = "red";
-      }
+      // Assume success — we can't inspect the actual response with no-cors.
+      responseBox.innerText = "✅ Thank you! Your inquiry has been sent.";
+      responseBox.style.color = "green";
+      responseBox.style.backgroundColor = "#e6ffe6";
+      responseBox.style.borderColor = "green";
+      responseBox.style.display = "block";
+      form.reset();
+      grecaptcha.reset();
+      document.getElementById("appointment-fields").style.display = "none";
     } catch (err) {
       responseBox.innerText = "❌ Submission error: " + err.message;
       responseBox.style.color = "red";
@@ -184,14 +180,12 @@
     const appointmentFields = document.getElementById("appointment-fields");
 
     requestType.addEventListener("change", function () {
-      if (requestType.value === "Appointment Request") {
-        appointmentFields.style.display = "block";
-      } else {
-        appointmentFields.style.display = "none";
-      }
+      appointmentFields.style.display =
+        requestType.value === "Appointment Request" ? "block" : "none";
     });
   });
 </script>
+<!--End of Script-->
 
 </body>
 </html>
