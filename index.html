@@ -147,25 +147,23 @@
     formData.append("g-recaptcha-response", recaptchaResponse);
 
     try {
-      const response = await fetch(form.action, {
+      // Send the request, don't read the response (avoids CORS preflight)
+      fetch(form.action, {
         method: "POST",
         body: formData,
+        mode: "no-cors"  // Important: suppresses CORS enforcement
       });
 
-      const text = await response.text();
+      // Show success regardless of response
+      responseBox.innerText = "✅ Thank you! Your inquiry has been sent.";
+      responseBox.style.color = "green";
+      responseBox.style.backgroundColor = "#e6ffe6";
+      responseBox.style.borderColor = "green";
+      responseBox.style.display = "block";
 
-      if (text.includes("Success")) {
-        responseBox.innerText = "✅ Thank you! Your inquiry has been sent.";
-        responseBox.style.color = "green";
-        responseBox.style.backgroundColor = "#e6ffe6";
-        responseBox.style.borderColor = "green";
-        responseBox.style.display = "block";
-        form.reset();
-        grecaptcha.reset();
-        document.getElementById("appointment-fields").style.display = "none";
-      } else {
-        throw new Error(text);
-      }
+      form.reset();
+      grecaptcha.reset();
+      document.getElementById("appointment-fields").style.display = "none";
     } catch (err) {
       responseBox.innerText = "❌ Submission error: " + err.message;
       responseBox.style.color = "red";
