@@ -147,23 +147,25 @@
     formData.append("g-recaptcha-response", recaptchaResponse);
 
     try {
-      const fetchPromise = fetch(form.action, {
+      const response = await fetch(form.action, {
         method: "POST",
-        body: formData
+        body: formData,
       });
 
-      // Even in no-cors, the promise will resolve if the request is sent successfully.
-      await fetchPromise;
+      const text = await response.text();
 
-      // Assume success — we can't inspect the actual response with no-cors.
-      responseBox.innerText = "✅ Thank you! Your inquiry has been sent.";
-      responseBox.style.color = "green";
-      responseBox.style.backgroundColor = "#e6ffe6";
-      responseBox.style.borderColor = "green";
-      responseBox.style.display = "block";
-      form.reset();
-      grecaptcha.reset();
-      document.getElementById("appointment-fields").style.display = "none";
+      if (text.includes("Success")) {
+        responseBox.innerText = "✅ Thank you! Your inquiry has been sent.";
+        responseBox.style.color = "green";
+        responseBox.style.backgroundColor = "#e6ffe6";
+        responseBox.style.borderColor = "green";
+        responseBox.style.display = "block";
+        form.reset();
+        grecaptcha.reset();
+        document.getElementById("appointment-fields").style.display = "none";
+      } else {
+        throw new Error(text);
+      }
     } catch (err) {
       responseBox.innerText = "❌ Submission error: " + err.message;
       responseBox.style.color = "red";
@@ -172,16 +174,6 @@
       responseBox.style.display = "block";
     }
   }
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const requestType = document.getElementById("request-type");
-    const appointmentFields = document.getElementById("appointment-fields");
-
-    requestType.addEventListener("change", function () {
-      appointmentFields.style.display =
-        requestType.value === "Appointment Request" ? "block" : "none";
-    });
-  });
 </script>
 <!--End of Script-->
 
