@@ -76,7 +76,6 @@
   <div class="container-fluid">
     <h1>Send us an email</h1>
     <form id="contact-form" method="POST" action="https://script.google.com/macros/s/AKfycbxgi8ARC3cK39_Dt9k50Qc30CjKvAXL28Dzsb1cyIPtdu_aK-cNWtNDE8dolqbHY2d6/exec" onsubmit="submitForm(event)">
-
       <!-- Request Type -->
       <p>Request Type<br />
         <select name="requestType" required class="form-control" id="request-type">
@@ -150,7 +149,6 @@
     try {
       const fetchPromise = fetch(form.action, {
         method: "POST",
-        mode: "no-cors",
         body: formData
       });
 
